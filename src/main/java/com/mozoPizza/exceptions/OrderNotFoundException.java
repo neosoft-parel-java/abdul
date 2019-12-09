@@ -1,4 +1,4 @@
-package com.test.exceptions;
+package com.mozoPizza.exceptions;
 
 public class OrderNotFoundException extends RuntimeException {
 
