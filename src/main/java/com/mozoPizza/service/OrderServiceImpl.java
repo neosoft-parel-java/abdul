@@ -1,8 +1,14 @@
 package com.mozoPizza.service;
 
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,10 +25,11 @@ public class OrderServiceImpl implements OrdererService {
 	@Autowired
 	OrderRepo orderRepo;
 
-	RestTemplate template;
+	@Autowired
+	private RestTemplate template;
 
 	@Override
-	public ResponseEntity<String> create(Order order) {
+	public String create(Order order) {
 
 		order.setStatus("Inprocess");
 		orderRepo.save(order);
@@ -34,10 +41,16 @@ public class OrderServiceImpl implements OrdererService {
 			logger.info("Order recieved");
 		logger.info("Notification to Kitchen ");
 
-		ResponseEntity<String> response = template.postForEntity("http://localhost:8081/kitchen/create", order,
-				String.class);
 		
-		return response;
+		HttpEntity<Order> request = new HttpEntity<>(order);
+		
+		ResponseEntity<Order> response = template
+				  .exchange("http://localhost:8081/kitchen/create", HttpMethod.POST, request, Order.class);
+		
+		/*Order  response = template.postForEntity("http://localhost:8081/kitchen/create", request,
+				Order.class);*/
+		
+		return response.toString();
 
 	}
 
